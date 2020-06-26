@@ -7,7 +7,8 @@ struct activity
 {
     string id;
     int duration;
-    int earliestStart, earliestFinish;
+    int earliestStart = -1; 
+    int earliestFinish = -1;
     int latestStart, latestFinish;
     int slack;
 
@@ -27,6 +28,7 @@ int findActivity(vector<activity> activities, string id)
     return -1;
 }
 
+//Inputs the data of the activities
 void activitiesInput(vector<activity> &activities)
 {
     for (int i = 0; i < activities.size(); i++)
@@ -64,6 +66,21 @@ void activitiesInput(vector<activity> &activities)
     }
 }
 
+//Sets the earliest times of the activities
+void setEarliestTimes(vector<activity> &activities, int nextIndex, int totalDuration)
+{
+    if(totalDuration > activities[nextIndex].earliestStart)
+    {
+        activities[nextIndex].earliestStart = totalDuration;
+        totalDuration += activities[nextIndex].duration;
+        activities[nextIndex].earliestFinish = totalDuration;
+    }
+    for (int j = 0; j < activities[nextIndex].successors.size(); j++)
+    {
+        setEarliestTimes(activities, activities[nextIndex].successors[j], totalDuration);
+    }
+}
+
 int main()
 {
     int numberActivities;
@@ -74,15 +91,28 @@ int main()
 
     activitiesInput(activities);
 
+    for (int i = 0; i < activities.size(); i++)
+    {
+        //Only on start nodes
+        if(activities[i].predecessors.size() == 0)
+        {
+            setEarliestTimes(activities, i, 0);
+        }
+    }
+
     //checking if predecessors and sucessors are working
     /*for (int i = 0; i < numberActivities; i++)
     {
-        cout << '\n';
+        cout << "\n\n";
+        cout << "Activity ID: " << activities[i].id << '\n' << "Predecessors: ";
         for (int j = 0; j < activities[i].predecessors.size(); j++)
-            cout << "predecessors: " << activities[i].predecessors[j] << ' ';
-        cout << '\n';
+            cout  << activities[i].predecessors[j] << ' ';
+        cout  << "\nSucessors: ";
         for (int j = 0; j < activities[i].successors.size(); j++)
-            cout << "sucessors: " << activities[i].successors[j] << ' ';
-    }*/
+            cout << activities[i].successors[j] << ' ';
+        cout << "\nEarliest start: " << activities[i].earliestStart;
+        cout << "\nEarliest finish: " << activities[i].earliestFinish;
+    }
+    cout << '\n';*/
     system("pause");
 }
