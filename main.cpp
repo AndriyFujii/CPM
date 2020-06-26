@@ -11,38 +11,29 @@ struct activity
     int latestStart, latestFinish;
     int slack;
 
-    vector<string> successors;
-    vector<string> predecessors;
+    vector<int> successors;
+    vector<int> predecessors;
 };
 
-//Checks if the given ID exists or not, and if it's not the same as the one being changed
-bool checkActivityId(vector<activity> activities, string id, int currentActivity)
-{
-    for (int i = 0; i < activities.size(); i++)
-        if(activities[i].id == id && activities[currentActivity].id != id)
-            return true;
-    
-    return false;
-}
-
-void setSucessor(vector<activity> &activities, string id, string currentActivityId)
+//Finds in which position of the vector the given ID is, and returns that position or -1 if it didn't find any
+int findActivity(vector<activity> activities, string id)
 {
     for (int i = 0; i < activities.size(); i++)
     {
-        if(activities[i].id == id)
-            activities[i].successors.push_back(currentActivityId);
+        if (activities[i].id == id)
+            return i;
     }
-    
+
+    return -1;
 }
 
-//In
 void activitiesInput(vector<activity> &activities)
 {
     for (int i = 0; i < activities.size(); i++)
     {
-        cout << "\nActivity " << i+1 << "\n\n";
-        
-        cout << "ID: "; 
+        cout << "\nActivity " << i + 1 << "\n\n";
+
+        cout << "ID: ";
         cin >> activities[i].id;
 
         cout << "Duration: ";
@@ -54,15 +45,15 @@ void activitiesInput(vector<activity> &activities)
         for (int j = 0; j < numberPredecessors; j++)
         {
             string activityId;
-            cout << "Predecessor ID #" << j+1 << ": ";
+            cout << "Predecessor ID #" << j + 1 << ": ";
             cin >> activityId;
-            if(checkActivityId(activities, activityId, i))
+
+            if (findActivity(activities, activityId) != -1 && activityId != activities[i].id)
             {
                 //Sets the predecessor
-                activities[i].predecessors.push_back(activityId);
+                activities[i].predecessors.push_back(findActivity(activities, activityId));
                 //Sets the sucessor
-                setSucessor(activities, activityId, activities[i].id);
-
+                activities[findActivity(activities, activityId)].successors.push_back(i);
             }
             else
             {
