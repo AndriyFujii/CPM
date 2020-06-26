@@ -9,7 +9,8 @@ struct activity
     int duration;
     int earliestStart = -1; 
     int earliestFinish = -1;
-    int latestStart, latestFinish;
+    int latestStart = -1;
+    int latestFinish = -1;
     int slack;
 
     vector<int> successors;
@@ -81,6 +82,31 @@ void setEarliestTimes(vector<activity> &activities, int nextIndex, int totalDura
     }
 }
 
+void setLatestTimes(vector<activity> &activities, int nextIndex, int totalDuration)
+{
+    if(activities[nextIndex].latestFinish == -1 || totalDuration < activities[nextIndex].latestFinish)
+    {
+        activities[nextIndex].latestFinish = totalDuration;
+        totalDuration -= activities[nextIndex].duration;
+        activities[nextIndex].latestStart = totalDuration;
+    }
+    for (int j = 0; j < activities[nextIndex].predecessors.size(); j++)
+    {
+        setLatestTimes(activities, activities[nextIndex].predecessors[j], totalDuration);
+    }
+}
+
+int highestTime(vector<activity> activities)
+{
+    int highestTime = 0;
+    for (int i = 0; i < activities.size(); i++)
+    {
+        if(activities[i].earliestFinish > highestTime)
+            highestTime = activities[i].earliestFinish;
+    }
+    return highestTime;
+}
+
 int main()
 {
     int numberActivities;
@@ -100,6 +126,15 @@ int main()
         }
     }
 
+    for (int i = 0; i < activities.size(); i++)
+    {
+        //Only on finish nodes
+        if(activities[i].successors.size() == 0)
+        {
+            setLatestTimes(activities, i, highestTime(activities));
+        }
+    }
+
     //checking if predecessors and sucessors are working
     /*for (int i = 0; i < numberActivities; i++)
     {
@@ -112,7 +147,9 @@ int main()
             cout << activities[i].successors[j] << ' ';
         cout << "\nEarliest start: " << activities[i].earliestStart;
         cout << "\nEarliest finish: " << activities[i].earliestFinish;
-    }
-    cout << '\n';*/
+        cout << "\nLatest start: " << activities[i].latestStart;
+        cout << "\nLatest finish: " << activities[i].latestFinish;
+    }*/
+    cout << '\n';
     system("pause");
 }
