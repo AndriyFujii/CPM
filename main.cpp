@@ -82,6 +82,7 @@ void setEarliestTimes(vector<activity> &activities, int nextIndex, int totalDura
     }
 }
 
+//Sets the latest times of the activities
 void setLatestTimes(vector<activity> &activities, int nextIndex, int totalDuration)
 {
     if(activities[nextIndex].latestFinish == -1 || totalDuration < activities[nextIndex].latestFinish)
@@ -96,7 +97,18 @@ void setLatestTimes(vector<activity> &activities, int nextIndex, int totalDurati
     }
 }
 
-int highestTime(vector<activity> activities)
+//Sets the slack of the activities
+void setSlack(vector<activity> &activities)
+{
+    for (int i = 0; i < activities.size(); i++)
+    {
+        activities[i].slack = activities[i].latestFinish - activities[i].earliestFinish;
+    }
+    
+}
+
+//Returns the highest total time of the activities
+int getHighestTime(vector<activity> activities)
 {
     int highestTime = 0;
     for (int i = 0; i < activities.size(); i++)
@@ -105,6 +117,18 @@ int highestTime(vector<activity> activities)
             highestTime = activities[i].earliestFinish;
     }
     return highestTime;
+}
+
+//Returns the IDs of the critical path activities
+vector<string> getCriticalPath(vector<activity> activities)
+{
+    vector<string> criticalPath;
+    for (int i = 0; i < activities.size(); i++)
+    {
+        if(activities[i].slack == 0)
+            criticalPath.push_back(activities[i].id);
+    }
+    return criticalPath;
 }
 
 int main()
@@ -125,18 +149,21 @@ int main()
             setEarliestTimes(activities, i, 0);
         }
     }
-
+    int totalTime = getHighestTime(activities);
     for (int i = 0; i < activities.size(); i++)
     {
         //Only on finish nodes
         if(activities[i].successors.size() == 0)
         {
-            setLatestTimes(activities, i, highestTime(activities));
+            setLatestTimes(activities, i, totalTime);
         }
     }
 
+    setSlack(activities);
+
+    vector<string> criticalPath = getCriticalPath(activities);
     //checking if predecessors and sucessors are working
-    /*for (int i = 0; i < numberActivities; i++)
+    for (int i = 0; i < numberActivities; i++)
     {
         cout << "\n\n";
         cout << "Activity ID: " << activities[i].id << '\n' << "Predecessors: ";
@@ -149,7 +176,14 @@ int main()
         cout << "\nEarliest finish: " << activities[i].earliestFinish;
         cout << "\nLatest start: " << activities[i].latestStart;
         cout << "\nLatest finish: " << activities[i].latestFinish;
-    }*/
+        cout << "\nSlack: " << activities[i].slack;
+    }
+    cout << "\n\nCritical path: ";
+    for (int i = 0; i < criticalPath.size(); i++)
+    {
+        cout << criticalPath[i] << ' ';
+    }
+    
     cout << '\n';
     system("pause");
 }
